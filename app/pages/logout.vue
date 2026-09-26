@@ -1,0 +1,1 @@
+<script setup>const { logout } = useAuth(); onMounted(logout)</script><template><p>Keluar dari akun…</p></template>

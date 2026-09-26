@@ -1,0 +1,52 @@
+{
+  "name": "spa-management",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev --host 127.0.0.1",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "node --env-file=.env scripts/migrate.js",
+    "db:seed": "node --env-file=.env scripts/seed.js",
+    "test": "node --env-file=.env --test tests/*.test.js",
+    "test:api": "node --env-file=.env scripts/verify-api.js",
+    "test:jobs": "node --env-file=.env scripts/verify-job-links.js",
+    "test:ui": "node --env-file=.env node_modules/@playwright/test/cli.js test",
+    "test:revenue": "node --env-file=.env scripts/verify-revenue-sharing.js",
+    "test:admin": "node --env-file=.env scripts/verify-admin-access.js",
+    "test:deployment": "node --env-file=.env scripts/verify-deployment.js",
+    "graphify:setup": "uv tool install \"graphifyy[sql]==0.9.22\"",
+    "graphify:build": "graphify extract . --code-only --no-cluster --max-workers 4 --force && graphify cluster-only . --no-label",
+    "graphify:update": "npm run graphify:build",
+    "graphify:query": "graphify query",
+    "graphify:explain": "graphify explain"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "argon2": "^0.44.0",
+    "drizzle-orm": "^0.45.0",
+    "leaflet": "^1.9.4",
+    "lucide-vue-next": "^0.468.0",
+    "luxon": "^3.7.0",
+    "nuxt": "^4.0.0",
+    "pg": "^8.16.0",
+    "tailwindcss": "^4.0.0",
+    "vue": "^3.5.0",
+    "vue-router": "^4.5.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "drizzle-kit": "^0.31.0"
+  },
+  "overrides": {
+    "@esbuild-kit/core-utils": {
+      "esbuild": "^0.25.0"
+    }
+  },
+  "imports": {
+    "#shared/*": "./shared/*"
+  }
+}

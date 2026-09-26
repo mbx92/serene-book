@@ -1,0 +1,1 @@
+export function useNotifications() { const result = useFetch('/api/notifications', { default: () => [] }); usePolling(result.refresh); return result }

@@ -1,0 +1,1 @@
+<script setup>definePageMeta({layout:'therapist'});const route=useRoute()</script><template><OrderDetail :id="String(route.params.id)" mobile /></template>

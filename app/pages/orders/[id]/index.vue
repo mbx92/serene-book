@@ -1,0 +1,1 @@
+<script setup>const route=useRoute()</script><template><OrderDetail :id="String(route.params.id)" /></template>

@@ -1,0 +1,6 @@
+<script setup>
+import { today } from '#shared/utils/format.js'
+definePageMeta({layout:'therapist'})
+const {user}=useAuth();const {data:orders,refresh}=await useOrders();usePolling(refresh)
+const active=computed(()=>orders.value.filter(o=>o.assignment?.isActive&&!['CLOSED','COMPLETED','PAID','CANCELLED_BY_ADMIN','CANCELLED_BY_CUSTOMER'].includes(o.orderStatus)).sort((a,b)=>(a.bookingDate+a.bookingTime).localeCompare(b.bookingDate+b.bookingTime)))
+</script><template><div><p class="eyebrow">YOUR WELLNESS WORKDAY</p><h1>Halo, {{ user?.name.split(' ')[0] }}</h1><p class="muted mb-6">{{ active.length }} job menunggu sentuhan terbaik Anda.</p><div class="mobile-stats"><div><strong>{{ active.filter(o=>o.orderStatus==='ASSIGNED_THERAPIST').length }}</strong><span>Job baru</span></div><div><strong>{{ active.filter(o=>o.orderStatus!=='ASSIGNED_THERAPIST').length }}</strong><span>Job aktif</span></div><div><strong>{{ orders.filter(o=>['COMPLETED','PAID','CLOSED'].includes(o.orderStatus)&&o.bookingDate===today()).length }}</strong><span>Selesai hari ini</span></div></div><h2 class="mb-4 mt-6">Job Anda</h2><OrderJobCard v-for="o in active" :key="o.id" :order="o" /><UiEmptyState v-if="!active.length" title="Belum ada job aktif" message="Job baru akan tampil di sini saat admin menugaskan Anda." icon="therapists" /></div></template>

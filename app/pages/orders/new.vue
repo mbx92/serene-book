@@ -1,0 +1,1 @@
+<script setup>const {canManageOrders}=useAuth();if(!canManageOrders.value)await navigateTo('/orders')</script><template><div><LayoutPageHeader title="Buat order baru" description="Mulai perjalanan pelayanan customer Anda." eyebrow="NEW BOOKING" /><OrderForm /></div></template>

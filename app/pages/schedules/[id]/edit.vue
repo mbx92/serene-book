@@ -1,0 +1,1 @@
+<script setup>const route=useRoute()</script><template><MasterResourceForm resource="schedules" :id="String(route.params.id)" /></template>

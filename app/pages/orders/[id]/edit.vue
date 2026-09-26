@@ -1,0 +1,1 @@
+<script setup>const route=useRoute();const {data:order,error}=await useFetch(`/api/orders/${route.params.id}`)</script><template><div><LayoutPageHeader title="Edit order" :description="order?.orderNumber" /><OrderForm v-if="order" :order="order" /><UiEmptyState v-else :message="error?.data?.statusMessage" /></div></template>

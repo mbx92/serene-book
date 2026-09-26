@@ -1,0 +1,1 @@
+<template><MasterReportView type="revenue" /></template>

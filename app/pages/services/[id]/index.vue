@@ -1,0 +1,1 @@
+<script setup>const route=useRoute()</script><template><MasterResourceDetail resource="services" :id="String(route.params.id)" /></template>

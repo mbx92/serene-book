@@ -1,0 +1,1 @@
+<script setup>defineProps({ title: { type: String, default: 'Belum ada data' }, message: { type: String, default: 'Data akan tampil di sini setelah ditambahkan.' }, icon: { type: String, default: 'orders' } })</script><template><div class="empty-state"><div class="empty-icon"><UiIcon :name="icon" :size="28" /></div><h3>{{ title }}</h3><p>{{ message }}</p><slot /></div></template>

@@ -1,0 +1,14 @@
+export const ROLES = ['SUPER_ADMIN', 'OWNER', 'CUSTOMER_SERVICE', 'LOCATION_ADMIN', 'THERAPIST']
+export const STATUSES = ['NEW', 'CONFIRMED', 'ASSIGNED_LOCATION', 'ASSIGNED_THERAPIST', 'ACCEPTED', 'ON_THE_WAY', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED', 'PAID', 'CLOSED', 'CANCELLED_BY_CUSTOMER', 'CANCELLED_BY_ADMIN', 'THERAPIST_REJECTED', 'NO_THERAPIST_AVAILABLE']
+export const TERMINAL = ['CLOSED', 'CANCELLED_BY_CUSTOMER', 'CANCELLED_BY_ADMIN']
+export const SOURCES = ['WHATSAPP', 'WEB', 'PHONE', 'WALK_IN', 'ADMIN']
+export const PAYMENT_METHODS = ['CASH', 'BANK_TRANSFER', 'QRIS', 'CARD', 'ONLINE_PAYMENT']
+export const STATUS_LABELS = { NEW: 'Baru', CONFIRMED: 'Dikonfirmasi', ASSIGNED_LOCATION: 'Menunggu therapist', ASSIGNED_THERAPIST: 'Menunggu respons', ACCEPTED: 'Diterima', ON_THE_WAY: 'Dalam perjalanan', ARRIVED: 'Tiba di lokasi', IN_PROGRESS: 'Treatment berjalan', COMPLETED: 'Treatment selesai', PAID: 'Lunas', CLOSED: 'Ditutup', CANCELLED_BY_CUSTOMER: 'Dibatalkan customer', CANCELLED_BY_ADMIN: 'Dibatalkan admin', THERAPIST_REJECTED: 'Therapist menolak', NO_THERAPIST_AVAILABLE: 'Therapist tidak tersedia', UNPAID: 'Belum dibayar', PARTIAL: 'Dibayar sebagian', REFUNDED: 'Dikembalikan', AVAILABLE: 'Tersedia', BOOKED: 'Terjadwal', OFF: 'Libur', LEAVE: 'Cuti' }
+export const ROLE_LABELS = { SUPER_ADMIN: 'Super Admin', OWNER: 'Owner', CUSTOMER_SERVICE: 'Customer Service', LOCATION_ADMIN: 'Admin Lokasi', THERAPIST: 'Therapist' }
+export const JOB_ACTION_LABELS = { accept: 'Ambil job', reject: 'Tidak bisa', 'on-the-way': 'Mulai perjalanan', arrived: 'Saya sudah tiba', start: 'Mulai treatment', complete: 'Selesaikan treatment' }
+STATUS_LABELS.PENDING = 'Menunggu respons'
+STATUS_LABELS.REJECTED = 'Ditolak'
+STATUS_LABELS.REASSIGNED = 'Dialihkan'
+STATUS_LABELS.EXPIRED = 'Kedaluwarsa'
+export const ACTIONS = { confirm: ['NEW', 'CONFIRMED'], accept: ['ASSIGNED_THERAPIST', 'ACCEPTED'], 'on-the-way': ['ACCEPTED', 'ON_THE_WAY'], arrived: ['ON_THE_WAY', 'ARRIVED'], start: ['ARRIVED', 'IN_PROGRESS'], complete: ['IN_PROGRESS', 'COMPLETED'], close: ['PAID', 'CLOSED'] }
+export const PAYMENT_METHOD_LABELS = { CASH: 'Tunai', BANK_TRANSFER: 'Transfer bank', QRIS: 'QRIS', CARD: 'Kartu', ONLINE_PAYMENT: 'Pembayaran online' }

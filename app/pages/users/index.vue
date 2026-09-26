@@ -1,0 +1,1 @@
+<template><MasterResourceList resource="users" /></template>

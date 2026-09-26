@@ -1,0 +1,24 @@
+# Local secrets and private exports, including the otherwise tracked env example.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.dump
+*.backup
+
+# Dependencies, generated files, screenshots and Graphify's own integration.
+node_modules/
+.nuxt/
+.output/
+.git/
+.codex/
+.agents/
+graphify-out/
+coverage/
+artifacts/
+test-results/
+playwright-report/
+package-lock.json
+server/database/migrations/meta/

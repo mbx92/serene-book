@@ -1,0 +1,1 @@
+<template><MasterResourceList resource="schedules" /></template>

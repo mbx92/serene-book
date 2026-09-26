@@ -1,0 +1,1 @@
+export function useOrders(query = {}) { return useFetch('/api/orders', { query, default: () => [] }) }

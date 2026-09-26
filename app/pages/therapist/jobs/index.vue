@@ -1,0 +1,1 @@
+<script setup>definePageMeta({layout:'therapist'});await navigateTo('/therapist')</script><template><div /></template>

@@ -1,0 +1,1 @@
+<template><MasterResourceForm resource="locations" /></template>

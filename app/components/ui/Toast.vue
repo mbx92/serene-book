@@ -1,0 +1,1 @@
+<script setup>const { messages } = useFeedback()</script><template><div class="toast-stack" role="status" aria-live="polite"><div v-for="m in messages" :key="m.id" :class="['toast',m.type]"><UiIcon :name="m.type === 'error' ? 'close' : 'success'" :size="18" />{{ m.message }}</div></div></template>
