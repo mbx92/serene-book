@@ -1,4 +1,4 @@
-# Coolify: choose Docker Compose build pack and this file as Compose Location.
+# Coolify: app only; DATABASE_URL connects to your existing PostgreSQL.
 services:
   app:
     build:
@@ -8,6 +8,8 @@ services:
     init: true
     expose:
       - "3000"
+    networks:
+      - coolify
     environment:
       NODE_ENV: production
       HOST: 0.0.0.0
@@ -15,11 +17,7 @@ services:
       APP_URL: ${APP_URL:?}
       SESSION_SECRET: ${SESSION_SECRET:?}
       COOKIE_SECURE: "true"
-      DATABASE_HOST: postgres
-      DATABASE_PORT: "5432"
-      DATABASE_NAME: ${POSTGRES_DB:-spa_management}
-      DATABASE_USER: ${POSTGRES_USER:-spa}
-      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?}
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL to your existing PostgreSQL connection URL}
       TRUST_PROXY_HOPS: ${TRUST_PROXY_HOPS:-1}
       SEED_DEMO: ${SEED_DEMO:-false}
       SEED_PASSWORD: ${SEED_PASSWORD:-}
@@ -32,9 +30,6 @@ services:
       BOOKING_RATE_LIMIT_PHONE_WINDOW_SECONDS: ${BOOKING_RATE_LIMIT_PHONE_WINDOW_SECONDS:-3600}
       BOOKING_RATE_LIMIT_GLOBAL_MAX: ${BOOKING_RATE_LIMIT_GLOBAL_MAX:-120}
       BOOKING_RATE_LIMIT_GLOBAL_WINDOW_SECONDS: ${BOOKING_RATE_LIMIT_GLOBAL_WINDOW_SECONDS:-60}
-    depends_on:
-      postgres:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 30s
@@ -42,19 +37,6 @@ services:
       start_period: 180s
       retries: 5
     stop_grace_period: 30s
-  postgres:
-    image: postgres:17-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-spa_management}
-      POSTGRES_USER: ${POSTGRES_USER:-spa}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
-    volumes:
-      - spa_postgres_production:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-volumes:
-  spa_postgres_production:
+networks:
+  coolify:
+    external: true
