@@ -24,15 +24,15 @@ Compose production hanya menjalankan service **app**, menggunakan PostgreSQL yan
 
 Gunakan password berbeda untuk DB, owner dan akun demo. Rahasia tidak di-embed saat build. Salin connection URL dari resource/provider database. Jika menyusun URL sendiri, encode karakter khusus pada username/password (misalnya `@` menjadi `%40`, `:` menjadi `%3A`, dan `%` menjadi `%25`). Ikuti konfigurasi TLS/sertifikat dari provider bila diperlukan; parameter koneksi dapat disertakan dalam URL.
 
-4. Pada service **app**, isi Domains dengan `https://spa.example.com:3088`. Suffix `:3088` menentukan port internal untuk proxy; pengunjung tetap membuka `https://spa.example.com`. Domain ini harus sesuai `APP_URL` tanpa suffix. Pastikan jaringan database sesuai panduan di bawah.
-5. Deploy setelah PostgreSQL tersedia dan dapat diakses dari container app. Container app memvalidasi konfigurasi, menjalankan migration, melakukan seed/bootstrap pada DB baru, kemudian memulai Nitro pada `0.0.0.0:3088` sebagai user non-root. Bila koneksi database gagal, startup gagal dan container mencoba kembali sesuai restart policy.
+4. Jika memakai proxy domain Coolify, isi Domains service **app** dengan `https://spa.example.com:3000`. Suffix `:3000` menentukan port container yang dituju proxy; pengunjung tetap membuka `https://spa.example.com`. `APP_URL` tetap tanpa suffix. Port host `3088` digunakan untuk pemeriksaan dari server, sedangkan proxy menghubungi container pada `3000`. Jika memakai **Cloudflared Tunnel**, kolom Domains tidak diperlukan; ikuti konfigurasi tunnel di bawah. Pastikan jaringan database sesuai panduan di bawah. Gunakan deployment Compose normal; Raw Compose memerlukan pengelolaan label proxy sendiri.
+5. Deploy setelah PostgreSQL tersedia dan dapat diakses dari container app. Container app memvalidasi konfigurasi, menjalankan migration, melakukan seed/bootstrap pada DB baru, kemudian memulai Nitro pada `0.0.0.0:3000` sebagai user non-root. Bila koneksi database gagal, startup gagal dan container mencoba kembali sesuai restart policy.
 6. Verifikasi `/api/health` (HTTP 200), `/`, `/book`, `/dokumentasi.html`, dan login. Demo memiliki akun pada README/panduan; password adalah `SEED_PASSWORD` yang Anda tetapkan.
 
 Migration dan inisialisasi memakai PostgreSQL advisory lock agar startup bersamaan tidak menimpa data. Deploy berikutnya tidak mengubah password atau menambahkan ulang data seed. `SEED_DEMO=true` pada DB yang sudah memiliki user tidak mengubahnya menjadi data demo. Untuk production baru, gunakan `SEED_DEMO=false` dan bootstrap owner; lengkapi lokasi, layanan dan therapist melalui UI.
 
 ## Koneksi ke PostgreSQL yang sudah ada
 
-Compose menghubungkan service app secara eksplisit ke network eksternal **coolify**, sesuai konfigurasi server ini. Network tersebut harus sudah tersedia pada server deployment; Compose menggunakan network yang ada. Jika PostgreSQL berada pada network yang sama, gunakan connection URL **internal** dari resource database. Untuk destination Coolify dengan nama network berbeda, sesuaikan deklarasi dan koneksi network pada kedua file Compose. Lihat [dokumentasi jaringan Coolify](https://coolify.io/docs/applications/builds/docker-compose).
+Compose menghubungkan service app ke network **default** milik stack dan network eksternal **coolify**, sesuai konfigurasi server ini. Network `coolify` harus sudah tersedia pada server deployment; Compose menggunakan network yang ada. Proxy dan PostgreSQL perlu berada pada network yang dapat menjangkau app. Jika PostgreSQL berada pada network yang sama, gunakan connection URL **internal** dari resource database. Untuk destination Coolify dengan nama network berbeda, sesuaikan deklarasi dan koneksi network pada kedua file Compose. Lihat [dokumentasi jaringan Coolify](https://coolify.io/docs/applications/builds/docker-compose).
 
 Jika PostgreSQL berada di server/provider lain, gunakan hostname/IP yang dapat dijangkau dari container app, port sebenarnya, dan konfigurasi TLS yang diwajibkan provider. Izinkan koneksi dari server app pada firewall/aturan akses database. `localhost` atau `127.0.0.1` dalam `DATABASE_URL` merujuk container app sendiri, sehingga tidak dapat dipakai untuk database di container/server lain.
 
@@ -64,7 +64,7 @@ Counter tersimpan di PostgreSQL, atomik untuk request bersamaan, dibagi antar in
 
 Nilai harus integer 1–86400. Batas IP/global dihitung sebelum parsing payload, termasuk request invalid. Batas telepon berlaku setelah validasi; format `08…` dan `+628…` memakai bucket yang sama. Pembatasan telepon ini tidak mengubah identitas customer lama di database.
 
-`TRUST_PROXY_HOPS=0` mengabaikan X-Forwarded-For (default development). Nilai `1` mengambil alamat paling kanan pada header yang ditambahkan satu proxy terpercaya. Rantai CDN + proxy mungkin membutuhkan nilai lain; periksa konfigurasi nyata. Jangan mempublikasikan port app langsung ketika forwarded headers dipercaya. Batas IP dapat memengaruhi customer dalam Wi-Fi/NAT yang sama. Bot yang mengganti IP dan nomor masih dapat membuat permintaan sampai batas global; gunakan WAF/CAPTCHA bila volume serangan memerlukannya. Rate limit bukan verifikasi kepemilikan WhatsApp.
+`TRUST_PROXY_HOPS=0` mengabaikan X-Forwarded-For (default development). Nilai `1` mengambil alamat paling kanan pada header yang ditambahkan satu proxy terpercaya. Rantai CDN + proxy mungkin membutuhkan nilai lain; periksa konfigurasi nyata. Saat forwarded headers dipercaya, batasi akses langsung port host `3088` ke jaringan tepercaya agar trafik publik tetap melalui proxy/tunnel. Batas IP dapat memengaruhi customer dalam Wi-Fi/NAT yang sama. Bot yang mengganti IP dan nomor masih dapat membuat permintaan sampai batas global; gunakan WAF/CAPTCHA bila volume serangan memerlukannya. Rate limit bukan verifikasi kepemilikan WhatsApp.
 
 ## Data, backup, dan operasi
 
@@ -87,6 +87,24 @@ docker compose -f compose.coolify.yaml --env-file .env.coolify build
 docker compose -f compose.coolify.yaml --env-file .env.coolify up -d
 ```
 
-Compose production sengaja tidak mempublikasikan host port; akses app melalui proxy Coolify. File `.env.coolify` harus disimpan lokal/rahasia, tidak di-commit. Pastikan `DATABASE_URL` mengarah ke database yang sesuai lingkungan deployment.
+Compose mempublikasikan port host `3088` pada semua interface ke port `3000` di container (`3088:3000`), sehingga app dapat diperiksa melalui `http://IP-LAN-server:3088`. Untuk jalur proxy/tunnel dengan forwarded headers terpercaya, batasi akses langsung port host pada firewall ke jaringan tepercaya. Pengunjung menggunakan domain HTTPS publik untuk login dengan secure cookie. File `.env.coolify` harus disimpan lokal/rahasia, tidak di-commit. Pastikan `DATABASE_URL` mengarah ke database yang sesuai lingkungan deployment.
+
+## Jika domain menampilkan 502
+
+Setelah mengubah `ports`, muat ulang konfigurasi Compose dan redeploy agar container dibuat ulang. Restart container lama saja tidak menambahkan port mapping. Pada server, `docker ps --format "table {{.Names}}\t{{.Ports}}"` harus menampilkan published port `0.0.0.0:3088->3000/tcp` untuk app; tampilan `3000/tcp` saja berarti port belum dipublikasikan. Jika mapping belum muncul, periksa file Compose/commit yang dipakai Coolify.
+
+Status container running belum memastikan aplikasi sudah siap. Pada server deployment, jalankan `curl -i http://127.0.0.1:3088/api/health` setelah redeploy. HTTP 200 memastikan aplikasi dapat dijangkau melalui mapping host dan dapat mengakses database. Jika koneksi ditolak, lihat log startup; bila masih ada error bootstrap, isi kredensial owner atau `SEED_DEMO=true` beserta `SEED_PASSWORD`, kemudian redeploy. Jika health mengembalikan 503, periksa koneksi database.
+
+Jika health HTTP 200 tetapi domain tetap 502, periksa Domains service app (`https://domain-anda:3000`), port tujuan pada label proxy yang dihasilkan Coolify (`3000`), serta koneksi network proxy ke app. Domain menargetkan port container, bukan host `3088`. Muat ulang konfigurasi dan redeploy setelah perubahan. Log startup yang berhasil menampilkan `Listening on ...:3000`; aplikasi mengikat `0.0.0.0` agar proxy dapat mengaksesnya.
+
+## Cloudflared Tunnel
+
+Isi `APP_URL` dengan origin HTTPS publik tunnel, misalnya `https://spa.example.com`. Aplikasi menerima HTTP pada origin internal; browser tetap menggunakan HTTPS melalui Cloudflare. Kolom Domains Coolify boleh kosong untuk jalur ini.
+
+Jika cloudflared berjalan sebagai container, hubungkan container cloudflared ke network `coolify` yang sama. Pada route Public Hostname, pilih **HTTP** dan isi Service URL **`http://serene-book:3000`**. Compose menyediakan alias network `serene-book` agar tunnel tidak bergantung pada nama container yang dihasilkan Coolify atau alias `app` milik aplikasi lain. `localhost` dalam container cloudflared menunjuk container cloudflared sendiri, sehingga tidak menunjuk app.
+
+Jika cloudflared berjalan langsung di server yang sama (atau memakai host networking), Service URL adalah **`http://127.0.0.1:3088`**, sesuai mapping host ke container. Jika cloudflared berjalan di container bridge atau di server lain dan memakai port host, gunakan **`http://IP-server:3088`** yang dapat dijangkau cloudflared. Jangan gunakan `localhost` pada container bridge untuk menunjuk host. Pada network Docker yang sama, gunakan alias `http://serene-book:3000`.
+
+Jika app sudah healthy tetapi tunnel masih 502, periksa URL Service, protocol HTTP, koneksi network dan log cloudflared (`connection refused`, kegagalan DNS atau timeout). Health app hanya membuktikan origin berfungsi dari dalam container, belum membuktikan cloudflared dapat menjangkaunya. Lihat [troubleshooting Cloudflare Tunnel](https://developers.cloudflare.com/tunnel/troubleshooting/).
 
 Referensi: [Docker Compose di Coolify](https://coolify.io/docs/applications/builds/docker-compose), [Docker multi-stage build](https://docs.docker.com/build/building/multi-stage/), [trusted forwarded IP di H3](https://v1.h3.dev/utils/request).

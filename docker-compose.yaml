@@ -7,13 +7,18 @@ services:
     restart: unless-stopped
     init: true
     expose:
-      - "3088"
+      - "3000"
+    ports:
+      - "3088:3000"
     networks:
-      - coolify
+      default: {}
+      coolify:
+        aliases:
+          - serene-book
     environment:
       NODE_ENV: production
       HOST: 0.0.0.0
-      PORT: "3088"
+      PORT: "3000"
       APP_URL: ${APP_URL:?}
       SESSION_SECRET: ${SESSION_SECRET:?}
       COOKIE_SECURE: "true"
@@ -31,7 +36,7 @@ services:
       BOOKING_RATE_LIMIT_GLOBAL_MAX: ${BOOKING_RATE_LIMIT_GLOBAL_MAX:-120}
       BOOKING_RATE_LIMIT_GLOBAL_WINDOW_SECONDS: ${BOOKING_RATE_LIMIT_GLOBAL_WINDOW_SECONDS:-60}
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3088/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 30s
       timeout: 5s
       start_period: 180s
