@@ -56,6 +56,10 @@ Console service app dapat menjalankan `node scripts/migrate.js`. CLI `npm run db
 
 ## Validasi lokal
 
+PWA tersedia pada build production dan membutuhkan domain HTTPS. Manifest, favicon daun, ikon perangkat dan `/sw.js` sudah ikut di dalam image; tidak perlu service tambahan. Pastikan proxy dapat melayani `/sw.js` dengan MIME JavaScript dan tidak menimpa header `Cache-Control: no-cache`. Chrome/Edge menyediakan pemasangan melalui menu browser; Safari iOS melalui Bagikan → Tambahkan ke Layar Utama. Pemasangan tidak mengaktifkan GPS latar belakang atau push notification.
+
+Service worker hanya menyimpan ikon, halaman offline dan panduan publik. Transaksi dan data akun tetap online. Ubah versi cache dalam `public/sw.js` jika mengubah file yang diprecache. Verifikasi dengan `npm run build` lalu `npm run test:pwa` di lingkungan lokal dengan database development; pengujian tidak menulis data booking.
+
 ```bash
 # compose.yaml tetap hanya DB untuk development. Deployment memakai file terpisah.
 docker compose -f compose.coolify.yaml --env-file .env.coolify config --quiet

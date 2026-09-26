@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "nuxt dev --host 127.0.0.1",
     "build": "nuxt build",
+    "icons:generate": "node scripts/generate-icons.js",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "db:generate": "drizzle-kit generate",
@@ -17,6 +18,7 @@
     "test:revenue": "node --env-file=.env scripts/verify-revenue-sharing.js",
     "test:admin": "node --env-file=.env scripts/verify-admin-access.js",
     "test:deployment": "node --env-file=.env scripts/verify-deployment.js",
+    "test:pwa": "node --env-file=.env scripts/verify-pwa.js",
     "graphify:setup": "uv tool install \"graphifyy[sql]==0.9.22\"",
     "graphify:build": "graphify extract . --code-only --no-cluster --max-workers 4 --force && graphify cluster-only . --no-label",
     "graphify:update": "npm run graphify:build",
@@ -39,7 +41,8 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
-    "drizzle-kit": "^0.31.0"
+    "drizzle-kit": "^0.31.0",
+    "sharp": "^0.35.4"
   },
   "overrides": {
     "@esbuild-kit/core-utils": {

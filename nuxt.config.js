@@ -5,5 +5,24 @@ export default defineNuxtConfig({
   css: ['leaflet/dist/leaflet.css', '~/assets/css/main.css'],
   vite: { plugins: [tailwindcss()] },
   runtimeConfig: { sessionSecret: '', databaseUrl: '', public: { appName: 'Serene Spa', mapTileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', mapAttribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' } },
-  app: { head: { title: 'Serene — Spa Management', meta: [{ name: 'description', content: 'Operasional spa dan home service dalam satu tempat.' }] } }
+  routeRules: {
+    '/sw.js': { headers: { 'cache-control': 'no-cache' } },
+    '/manifest.webmanifest': { headers: { 'cache-control': 'no-cache' } }
+  },
+  app: { head: {
+    htmlAttrs: { lang: 'id' },
+    title: 'Serene — Spa Management',
+    meta: [
+      { name: 'description', content: 'Operasional spa dan home service dalam satu tempat.' },
+      { name: 'theme-color', content: '#315b49' },
+      { name: 'apple-mobile-web-app-capable', content: 'yes' },
+      { name: 'apple-mobile-web-app-status-bar-style', content: 'default' }
+    ],
+    link: [
+      { rel: 'icon', href: '/favicon.ico', sizes: '16x16 32x32 48x48' },
+      { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      { rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png', sizes: '180x180' },
+      { rel: 'manifest', href: '/manifest.webmanifest' }
+    ]
+  } }
 })
