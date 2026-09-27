@@ -1,9 +1,10 @@
 <script setup>
+const branding = useBranding()
 import { dateLabel, timeLabel } from '#shared/utils/format.js'
 import { JOB_ACTION_LABELS } from '#shared/constants/index.js'
 import { whatsappUrl } from '#shared/utils/whatsapp.js'
 definePageMeta({ layout: 'auth' })
-useHead({ title: 'Konfirmasi job — Serene', meta: [{ name: 'robots', content: 'noindex, nofollow, nosnippet' }, { name: 'referrer', content: 'strict-origin' }] })
+useHead({ title: () => `Konfirmasi job — ${branding.value.appName}`, meta: [{ name: 'robots', content: 'noindex, nofollow, nosnippet' }, { name: 'referrer', content: 'strict-origin' }] })
 const route = useRoute()
 const endpoint = computed(() => `/api/public/jobs/${route.params.token}`)
 const { data: job, refresh, error } = await useFetch(endpoint)
@@ -34,7 +35,7 @@ async function submit() {
 </script>
 <template>
   <div class="job-page">
-    <header class="job-brand"><span class="brand-icon"><UiIcon name="leaf" :size="24" /></span><span>serene</span></header>
+    <header class="job-brand"><LayoutBrand /></header>
     <main v-if="unavailable" class="panel form-panel job-unavailable"><UiIcon name="locations" :size="30" /><h1>{{ unavailableTitle }}</h1><p class="muted">{{ job?.state === 'REJECTED' ? 'Keputusan Anda telah dicatat. Hubungi admin untuk penawaran berikutnya.' : 'Hubungi admin melalui WhatsApp untuk mendapatkan penawaran atau tautan terbaru.' }}</p><p v-if="message" class="error-message" role="alert">{{ message }}</p></main>
     <main v-else>
       <p class="eyebrow">JOB UNTUK {{ job.therapistName }}</p>
@@ -50,7 +51,7 @@ async function submit() {
       <p v-if="message" class="error-message mt-4" role="alert">{{ message }}</p>
       <a v-if="contact" :href="contact" class="btn btn-secondary w-full mt-5" target="_blank" rel="noopener noreferrer">Hubungi admin via WhatsApp</a>
     </main>
-    <footer class="job-footer">Serene Wellness · Simpan tautan ini untuk memperbarui status job.</footer>
+    <footer class="job-footer">{{ branding.appName }} · Simpan tautan ini untuk memperbarui status job.</footer>
     <UiModal :open="!!confirming && !unavailable" :title="JOB_ACTION_LABELS[confirming]" @close="confirming = ''"><form @submit.prevent="submit"><p class="muted">{{ confirming === 'accept' ? 'Dengan menerima, Anda mengonfirmasi siap melayani pada jadwal yang tertera.' : confirming === 'reject' ? 'Berikan alasan agar admin dapat mengatur penugasan berikutnya.' : 'Konfirmasikan bahwa status ini sesuai kondisi pelayanan Anda.' }}</p><label v-if="confirming === 'reject'" class="mt-4">Alasan tidak bisa<textarea v-model="reason" required minlength="3" maxlength="500" rows="3" /></label><p v-if="message" class="error-message" role="alert">{{ message }}</p><div class="modal-actions"><UiButton variant="secondary" :disabled="busy" @click="confirming = ''">Kembali</UiButton><UiButton type="submit" :loading="busy" :disabled="confirming === 'complete' && !canFinishTreatment">Konfirmasi {{ JOB_ACTION_LABELS[confirming]?.toLowerCase() }}</UiButton></div></form></UiModal>
   </div>
 </template>

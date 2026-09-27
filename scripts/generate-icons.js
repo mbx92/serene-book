@@ -1,15 +1,15 @@
 import sharp from 'sharp'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 
-// Use the same Lucide leaf as UiIcon; keep every generated icon reproducible.
+// Generate browser and installation icons from the application flower logo.
 const root = new URL('../public/', import.meta.url)
 const source = await readFile(new URL('favicon.svg', root), 'utf8')
 await mkdir(new URL('icons/', root), { recursive: true })
 for (const [name, size] of [['apple-touch-icon', 180], ['icon-192', 192], ['icon-512', 512]]) {
   await sharp(Buffer.from(source)).resize(size, size).png().toFile(new URL(`icons/${name}.png`, root).pathname)
 }
-// Solid full-bleed background; leaf remains inside the maskable safe zone.
-const maskable = source.replace('rx="18"', 'rx="0"')
+// Keep the logo inside the maskable safe zone on a solid background.
+const maskable = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><rect width="256" height="256" fill="#faf9f5"/><g transform="translate(48 48) scale(.625)">${source.replace(/<svg[^>]*>|<\/svg>/g, '')}</g></svg>`
 await sharp(Buffer.from(maskable)).resize(512, 512).png().toFile(new URL('icons/icon-maskable-512.png', root).pathname)
 
 const sizes = [16, 32, 48]
@@ -29,4 +29,4 @@ frames.forEach((frame, index) => {
   offset += frame.length
 })
 await writeFile(new URL('favicon.ico', root), Buffer.concat([header, ...frames]))
-console.log('Generated leaf favicon and PWA icons.')
+console.log('Generated flower favicon and PWA icons.')

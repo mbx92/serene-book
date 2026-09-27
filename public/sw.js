@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'serene-public-'
-const CACHE_NAME = `${CACHE_PREFIX}v1`
+const CACHE_NAME = `${CACHE_PREFIX}v3`
 const PUBLIC_FILES = [
   '/offline.html', '/dokumentasi.html', '/favicon.svg', '/favicon.ico',
   '/icons/apple-touch-icon.png', '/icons/icon-192.png', '/icons/icon-512.png',

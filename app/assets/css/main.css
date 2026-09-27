@@ -213,3 +213,9 @@ th { color:#7c8972; }td { color:#79866e; }.badge-green { color:#627e49; }.badge-
 .treatment-countdown output { display:block; font-size:36px; font-weight:600; font-variant-numeric:tabular-nums; line-height:1.4; color:#637c4b; margin:6px 0; }
 .treatment-countdown>small { display:block; color:#849276; font-size:10px; }
 .treatment-countdown.duration-complete { background:#edf5e7; border-color:#d4e4c5; }
+
+.brand-icon { width:43px; height:43px; flex-shrink:0; border:0; border-radius:0; background:transparent; }
+.brand-icon img { width:100%; height:100%; object-fit:contain; }
+.brand-name { font-size:18px; line-height:1.2; letter-spacing:-.4px; overflow-wrap:anywhere; min-width:0; }
+.workspace-label>div { min-width:0; overflow-wrap:anywhere; }
+.workspace-mark img { object-fit:contain; }

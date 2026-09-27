@@ -1,4 +1,4 @@
-import { defineEventHandler, getRouterParam, getQuery, readBody, getRequestURL, setResponseHeader, createError } from 'h3'
+import { defineEventHandler, getRouterParam, getQuery, readBody, getRequestURL, setResponseHeader, createError, sendRedirect } from 'h3'
 import { clientIP } from '../utils/client-ip.js'
 import { limitBookingRequest, limitBookingPhone } from '../services/booking-rate-limit.service.js'
 import argon2 from 'argon2'
@@ -20,6 +20,7 @@ import { paymentList, dashboard, report } from '../services/report.service.js'
 import { billingPolicy, getBillingSettings, saveBillingSettings } from '../services/billing-settings.service.js'
 import { getRevenueSettings, saveRevenueSettings } from '../services/revenue-sharing.service.js'
 import { orderOptions } from '../services/order-options.service.js'
+import { brandingSettings, publicBranding, getBrandingSettings, saveBrandingSettings, brandingManifest, brandingIcon } from '../services/branding.service.js'
 import { locationAdminApiAllowed } from '#shared/utils/access.js'
 const resourceSchemas = { customers: schemas.customerSchema, locations: schemas.locationSchema, services: schemas.serviceSchema, therapists: schemas.therapistSchema, schedules: schemas.scheduleSchema, users: schemas.userSchema }
 const filters = z.object({ date: schemas.date.optional(), from: schemas.date.optional(), to: schemas.date.optional(), locationId: schemas.identifier.optional(), therapistId: schemas.identifier.optional(), serviceId: schemas.identifier.optional(), customerId: schemas.identifier.optional(), status: z.enum(STATUSES).optional(), paymentStatus: z.enum(['UNPAID','PARTIAL','PAID','REFUNDED']).optional(), source: z.enum(SOURCES).optional(), search: z.string().max(100).optional() }).strict().refine(v => !v.from || !v.to || v.from <= v.to, 'Rentang tanggal tidak valid')
@@ -30,6 +31,19 @@ export default defineEventHandler(async event => {
     const method = event.method; const path = (getRouterParam(event, 'path') || '').split('/').filter(Boolean)
     const [resource, rawId, action] = path
     if (method !== 'GET') checkOrigin(event)
+    if (resource === 'public' && method === 'GET' && rawId === 'branding' && path.length === 2) return publicBranding(await brandingSettings())
+    if (resource === 'public' && method === 'GET' && rawId === 'branding-manifest' && path.length === 2) {
+      setResponseHeader(event, 'Content-Type', 'application/manifest+json')
+      return brandingManifest(await brandingSettings())
+    }
+    if (resource === 'public' && method === 'GET' && rawId === 'branding-icon' && path.length === 3) {
+      ensure(['logo', 'favicon', 'apple', '192', '512', 'maskable'].includes(action), 404, 'Ikon tidak ditemukan')
+      const icon = await brandingIcon(await brandingSettings(), action)
+      if (!icon) return sendRedirect(event, { logo: '/logo.svg', favicon: '/favicon.svg', apple: '/icons/apple-touch-icon.png', '192': '/icons/icon-192.png', '512': '/icons/icon-512.png', maskable: '/icons/icon-maskable-512.png' }[action])
+      setResponseHeader(event, 'Content-Type', 'image/png')
+      setResponseHeader(event, 'X-Content-Type-Options', 'nosniff')
+      return icon
+    }
     if (resource === 'auth' && rawId === 'login' && method === 'POST') {
       rateLimit(`login-ip:${clientIP(event)}`, 100)
       const input = await body(event, schemas.loginSchema)
@@ -88,6 +102,11 @@ export default defineEventHandler(async event => {
     if (resource === 'settings' && rawId === 'billing' && path.length === 2) {
       if (method === 'GET') return await getBillingSettings(user)
       if (method === 'PATCH') return await saveBillingSettings(await body(event, schemas.billingSettingsSchema), user)
+    }
+    if (resource === 'settings' && rawId === 'branding' && path.length === 2) {
+      permit(user, OWNER_ROLES)
+      if (method === 'GET') return await getBrandingSettings(user)
+      if (method === 'PATCH') return await saveBrandingSettings(await body(event, schemas.brandingSchema), user)
     }
     if (resource === 'settings' && rawId === 'revenue-sharing' && path.length === 2) {
       if (method === 'GET') return await getRevenueSettings(user)

@@ -1,5 +1,8 @@
 import { z } from 'zod'
 import { ROLES, SOURCES, PAYMENT_METHODS } from '../constants/index.js'
+import { BRAND_IMAGE_MAX_BYTES } from '../utils/branding.js'
+const brandImage = z.string().max(Math.ceil(BRAND_IMAGE_MAX_BYTES / 3) * 4 + 40).regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/, 'Gunakan gambar PNG, JPG, atau WebP').nullable()
+export const brandingSchema = z.object({ appName: z.string().trim().min(2).max(80), logo: brandImage, favicon: brandImage }).strict()
 const name = z.string().trim().min(2).max(150)
 const notes = z.string().trim().max(2000).optional().default('')
 export const identifier = z.coerce.number().int().positive()

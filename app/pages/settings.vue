@@ -16,7 +16,8 @@ async function save() {
 </script>
 <template>
   <div>
-    <LayoutPageHeader title="Settings" description="Atur tagihan customer dan pembagian pendapatan layanan." eyebrow="SYSTEM SETTINGS" />
+    <LayoutPageHeader title="Settings" description="Atur identitas aplikasi, tagihan customer, dan pembagian pendapatan layanan." eyebrow="SYSTEM SETTINGS" />
+    <SettingsBranding />
     <SettingsBilling />
     <p v-if="error" class="error-message">{{ error.data?.statusMessage }}</p>
     <form v-if="data" class="panel form-panel max-w-3xl" @submit.prevent="save">

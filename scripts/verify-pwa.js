@@ -46,8 +46,8 @@ try {
   const page = await context.newPage()
   await page.goto(`${origin}/book`)
   await page.waitForFunction(() => document.querySelector('[data-app-ready="true"]'))
-  check(await page.locator('link[rel="icon"][href="/favicon.svg"]').count() === 1, 'booking uses the leaf favicon')
-  check(await page.locator('link[rel="manifest"]').getAttribute('href') === '/manifest.webmanifest', 'application links its manifest')
+  check(await page.locator('link[rel="icon"][href="/favicon.svg?v=3"]').count() === 1, 'booking uses the transparent flower favicon')
+  check((await page.locator('link[rel="manifest"]').getAttribute('href')).startsWith('/api/public/branding-manifest'), 'application links its manifest')
   await page.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 20000 })
   const registration = await page.evaluate(async () => {
     const registration = await navigator.serviceWorker.ready

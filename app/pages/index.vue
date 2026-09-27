@@ -1,7 +1,8 @@
 <script setup>
+const branding = useBranding()
 import { money } from '#shared/utils/format.js'
 definePageMeta({ layout: false })
-useSeoMeta({ title: 'Serene — Spa & Home Service', description: 'Temukan layanan spa, durasi treatment, dan harga Serene. Booking treatment untuk rumah, hotel, atau villa Anda.' })
+useSeoMeta({ title: () => `${branding.value.appName} — Spa & Home Service`, description: () => `Temukan layanan spa, durasi treatment, dan harga ${branding.value.appName}. Booking treatment untuk rumah, hotel, atau villa Anda.` })
 const { data: catalog, error, refresh, status } = await useFetch('/api/public/catalog')
 const locationId = ref(null)
 const locations = computed(() => catalog.value?.locations || [])
@@ -18,7 +19,7 @@ const bookingLink = service => ({ path: '/book', query: { service: service.id, .
 <template>
   <div class="landing">
     <header class="landing-header landing-container">
-      <NuxtLink to="/" class="brand" aria-label="Serene beranda"><span class="brand-icon"><UiIcon name="leaf" :size="24" /></span><span>serene<span class="brand-sub">SPA & HOME SERVICE</span></span></NuxtLink>
+      <NuxtLink to="/" class="brand" :aria-label="branding.appName + ' beranda'"><LayoutBrand subtitle="SPA & HOME SERVICE" /></NuxtLink>
       <nav aria-label="Navigasi utama"><a href="#layanan">Layanan & harga</a><a href="#cara-booking">Cara booking</a><a href="/dokumentasi.html">Panduan</a><NuxtLink to="/login" class="staff-link">Staff login <UiIcon name="up" :size="14" /></NuxtLink></nav>
       <NuxtLink to="/book" class="btn btn-primary">Booking treatment <UiIcon name="arrow" :size="16" /></NuxtLink>
     </header>
@@ -61,7 +62,7 @@ const bookingLink = service => ({ path: '/book', query: { service: service.id, .
       </section>
       <section class="landing-cta landing-container"><UiIcon name="leaf" :size="35" /><h2>Waktu untuk Anda,<br /><em>dimulai di sini.</em></h2><NuxtLink to="/book" class="btn btn-primary">Booking treatment <UiIcon name="arrow" :size="17" /></NuxtLink></section>
     </main>
-    <footer class="landing-footer landing-container"><div><NuxtLink to="/" class="footer-brand">serene</NuxtLink><p>Spa & home service, di tempat pilihan Anda.</p></div><div class="footer-areas"><span>Area pelayanan</span><p>{{ locations.map(location=>location.name).join(' · ') || 'Area dikonfirmasi oleh tim' }}</p></div><NuxtLink to="/login">Staff login <UiIcon name="up" :size="14" /></NuxtLink></footer>
+    <footer class="landing-footer landing-container"><div><NuxtLink to="/" class="footer-brand">{{ branding.appName }}</NuxtLink><p>Spa & home service, di tempat pilihan Anda.</p></div><div class="footer-areas"><span>Area pelayanan</span><p>{{ locations.map(location=>location.name).join(' · ') || 'Area dikonfirmasi oleh tim' }}</p></div><NuxtLink to="/login">Staff login <UiIcon name="up" :size="14" /></NuxtLink></footer>
   </div>
 </template>
 <style scoped>
